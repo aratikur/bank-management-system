@@ -251,7 +251,7 @@ public class BankingSystemGUI extends JFrame {
             if (acc != null) {
                 statusArea.setText(
                     "👤 Name: " + acc.getName() +
-                    "\n📞 Account Number: " + acc.getPhone() +
+                    "\n📞 Account Number: 0" + acc.getPhone() +
                     "\n🎂 Date of Birth: " + acc.getDob() +
                     "\n💰 Current Balance: " + acc.getBalance()
                 );
@@ -274,7 +274,7 @@ public class BankingSystemGUI extends JFrame {
             ArrayList<Account> list = BankingSystem.getAccounts();
             StringBuilder sb = new StringBuilder();
             for (Account acc : list) {
-                sb.append(acc.getName()).append(" - ").append(acc.getPhone()).append("\n");
+                sb.append(acc.getName()).append(" - 0").append(acc.getPhone()).append("\n");
             }
             allAccountsArea.setText(sb.toString());
         });
