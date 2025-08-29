@@ -23,9 +23,17 @@ public class Account implements Serializable {
     public int getPhone() { return phone; }
     public float getBalance() { return balance; }
 
-    public void deposit(float amount) { this.balance += amount; }
+    public void deposit(float amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Deposit amount must be positive.");
+        }
+        this.balance += amount;
+    }
 
     public boolean withdraw(float amount) {
+        if (amount <= 0) {
+            return false; // no funny business
+        }
         if (balance >= amount) {
             balance -= amount;
             return true;

@@ -27,7 +27,6 @@ public class BankingSystemGUI extends JFrame {
         JPanel menuPanel = new JPanel(new GridLayout(0, 1, 10, 10));
         menuPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // ✅ Added "Status" option to menu
         String[] menuItems = {
             "Create Account", "Login", "Deposit", "Withdraw",
             "Transfer", "Status", "Show All Accounts"
@@ -49,7 +48,7 @@ public class BankingSystemGUI extends JFrame {
         contentPanel.add(depositPanel(), "Deposit");
         contentPanel.add(withdrawPanel(), "Withdraw");
         contentPanel.add(transferPanel(), "Transfer");
-        contentPanel.add(statusPanel(), "Status"); // ✅ New status panel
+        contentPanel.add(statusPanel(), "Status");
         contentPanel.add(showAllPanel(), "Show All Accounts");
 
         add(contentPanel, BorderLayout.CENTER);
@@ -165,7 +164,7 @@ public class BankingSystemGUI extends JFrame {
                 if (BankingSystem.deposit(amount)) {
                     resultArea.setText("✅ Deposit successful!\nAmount: " + amount);
                 } else {
-                    resultArea.setText("❌ Please login first.");
+                    resultArea.setText("❌ Invalid deposit amount or login required.");
                 }
             } catch (NumberFormatException ex) {
                 resultArea.setText("⚠ Invalid amount.");
@@ -196,7 +195,7 @@ public class BankingSystemGUI extends JFrame {
                 if (BankingSystem.withdraw(amount)) {
                     resultArea.setText("✅ Withdrawal successful!\nAmount: " + amount);
                 } else {
-                    resultArea.setText("❌ Login required or insufficient funds.");
+                    resultArea.setText("❌ Login required, invalid amount, or insufficient funds.");
                 }
             } catch (NumberFormatException ex) {
                 resultArea.setText("⚠ Invalid amount.");
@@ -231,7 +230,7 @@ public class BankingSystemGUI extends JFrame {
                 if (BankingSystem.transfer(toPhone, amount)) {
                     resultArea.setText("✅ Transfer successful!\nAmount: " + amount);
                 } else {
-                    resultArea.setText("❌ Transfer failed. Login required or check balance/account.");
+                    resultArea.setText("❌ Transfer failed. Login required, invalid amount, or check balance/account.");
                 }
             } catch (NumberFormatException ex) {
                 resultArea.setText("⚠ Invalid input.");
@@ -241,7 +240,6 @@ public class BankingSystemGUI extends JFrame {
         return panel;
     }
 
-    // ✅ New "Status" panel
     private JPanel statusPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         JTextArea statusArea = new JTextArea();
@@ -267,7 +265,6 @@ public class BankingSystemGUI extends JFrame {
         return panel;
     }
 
-    // ✅ Updated "Show All Accounts" (no balance)
     private JPanel showAllPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         JTextArea allAccountsArea = new JTextArea();

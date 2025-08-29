@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public class BankingSystem {
     private static final String FILE_NAME = "accounts.ser";
     private static ArrayList<Account> accounts = new ArrayList<>();
-    private static Account currentAccount = null;  // Track logged-in user
+    private static Account currentAccount = null;
 
     public static void loadAccounts() {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
@@ -64,15 +64,19 @@ public class BankingSystem {
 
     public static boolean deposit(double amount) {
         if (currentAccount != null) {
-            currentAccount.deposit((float) amount);
-            saveAccounts();
-            return true;
+            try {
+                currentAccount.deposit((float) amount);
+                saveAccounts();
+                return true;
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
         }
         return false;
     }
 
     public static boolean withdraw(double amount) {
-        if (currentAccount != null && currentAccount.withdraw((float) amount)) {
+        if (currentAccount != null && amount > 0 && currentAccount.withdraw((float) amount)) {
             saveAccounts();
             return true;
         }
@@ -80,7 +84,7 @@ public class BankingSystem {
     }
 
     public static boolean transfer(int toPhone, double amount) {
-        if (currentAccount == null) return false;
+        if (currentAccount == null || amount <= 0) return false;
         Account toAcc = findAccountByPhone(toPhone);
         if (toAcc != null && currentAccount.withdraw((float) amount)) {
             toAcc.deposit((float) amount);
