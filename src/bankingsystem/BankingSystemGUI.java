@@ -4,6 +4,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 public class BankingSystemGUI extends JFrame {
 
@@ -59,7 +62,20 @@ public class BankingSystemGUI extends JFrame {
         GridBagConstraints gbc = createGBC();
 
         JTextField nameField = new JTextField(15);
+        
+        // Create a clickable date field with calendar popup
         JTextField dobField = new JTextField(15);
+        dobField.setEditable(false);
+        dobField.setText(new SimpleDateFormat("dd/MM/yyyy").format(new Date()));
+        JButton calendarBtn = new JButton("Select");
+        calendarBtn.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        calendarBtn.setPreferredSize(new Dimension(70, 25));
+        calendarBtn.setToolTipText("Select Date");
+        
+        JPanel dobPanel = new JPanel(new BorderLayout(5, 0));
+        dobPanel.add(dobField, BorderLayout.CENTER);
+        dobPanel.add(calendarBtn, BorderLayout.EAST);
+        
         JTextField phoneField = new JTextField(15);
         JPasswordField passwordField = new JPasswordField(15);
 
@@ -73,10 +89,8 @@ public class BankingSystemGUI extends JFrame {
         gbc.gridx = 0; gbc.gridy = 0; panel.add(new JLabel("Name:"), gbc);
         gbc.gridx = 1; panel.add(nameField, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 1; panel.add(new JLabel("DOB (dd/mm/yyyy):"), gbc);
-        gbc.gridx = 1; panel.add(dobField, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 2; panel.add(new JLabel("Phone:"), gbc);
+        gbc.gridx = 0; gbc.gridy = 1; panel.add(new JLabel("DOB (dd/MM/yyyy):"), gbc);
+        gbc.gridx = 1; panel.add(dobPanel, gbc);        gbc.gridx = 0; gbc.gridy = 2; panel.add(new JLabel("Phone:"), gbc);
         gbc.gridx = 1; panel.add(phoneField, gbc);
 
         gbc.gridx = 0; gbc.gridy = 3; panel.add(new JLabel("Password:"), gbc);
@@ -85,6 +99,14 @@ public class BankingSystemGUI extends JFrame {
         gbc.gridx = 1; gbc.gridy = 4; panel.add(createBtn, gbc);
         gbc.gridwidth = 2; gbc.gridx = 0; gbc.gridy = 5;
         panel.add(new JScrollPane(outputArea), gbc);
+
+        // Calendar button action - opens a date picker dialog
+        calendarBtn.addActionListener(e -> {
+            Date selectedDate = showDatePickerDialog(this);
+            if (selectedDate != null) {
+                dobField.setText(new SimpleDateFormat("dd/MM/yyyy").format(selectedDate));
+            }
+        });
 
         createBtn.addActionListener((ActionEvent e) -> {
             try {
@@ -293,6 +315,103 @@ public class BankingSystemGUI extends JFrame {
     private void switchPanel(String name) {
         CardLayout cl = (CardLayout) contentPanel.getLayout();
         cl.show(contentPanel, name);
+    }
+
+    private Date showDatePickerDialog(JFrame parent) {
+        JDialog dialog = new JDialog(parent, "Select Date of Birth", true);
+        dialog.setLayout(new BorderLayout(10, 10));
+        dialog.setSize(450, 400);
+        dialog.setLocationRelativeTo(parent);
+
+        final Date[] selectedDate = {null};
+        
+        // Create calendar components
+        Calendar cal = Calendar.getInstance();
+        
+        JPanel topPanel = new JPanel(new FlowLayout());
+        String[] months = {"January", "February", "March", "April", "May", "June", 
+                          "July", "August", "September", "October", "November", "December"};
+        JComboBox<String> monthCombo = new JComboBox<>(months);
+        monthCombo.setSelectedIndex(cal.get(Calendar.MONTH));
+        
+        JComboBox<Integer> yearCombo = new JComboBox<>();
+        int currentYear = cal.get(Calendar.YEAR);
+        for (int i = currentYear - 100; i <= currentYear; i++) {
+            yearCombo.addItem(i);
+        }
+        yearCombo.setSelectedItem(currentYear - 20); // Default to 20 years ago
+        
+        topPanel.add(new JLabel("Month:"));
+        topPanel.add(monthCombo);
+        topPanel.add(new JLabel("Year:"));
+        topPanel.add(yearCombo);
+        
+        // Create day selection panel with proper sizing
+        JPanel dayPanel = new JPanel(new GridLayout(7, 7, 5, 5));
+        dayPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        String[] dayNames = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+        for (String day : dayNames) {
+            JLabel lbl = new JLabel(day, JLabel.CENTER);
+            lbl.setFont(new Font("Arial", Font.BOLD, 13));
+            dayPanel.add(lbl);
+        }
+        
+        JButton[] dayButtons = new JButton[42];
+        for (int i = 0; i < 42; i++) {
+            dayButtons[i] = new JButton();
+            dayButtons[i].setFont(new Font("Arial", Font.PLAIN, 13));
+            dayButtons[i].setPreferredSize(new Dimension(50, 40));
+            dayButtons[i].setMargin(new Insets(2, 2, 2, 2));
+            final int index = i;
+            dayButtons[i].addActionListener(e -> {
+                if (!dayButtons[index].getText().isEmpty()) {
+                    int day = Integer.parseInt(dayButtons[index].getText());
+                    cal.set(Calendar.YEAR, (Integer) yearCombo.getSelectedItem());
+                    cal.set(Calendar.MONTH, monthCombo.getSelectedIndex());
+                    cal.set(Calendar.DAY_OF_MONTH, day);
+                    selectedDate[0] = cal.getTime();
+                    dialog.dispose();
+                }
+            });
+            dayPanel.add(dayButtons[i]);
+        }
+        
+        Runnable updateCalendar = () -> {
+            cal.set(Calendar.YEAR, (Integer) yearCombo.getSelectedItem());
+            cal.set(Calendar.MONTH, monthCombo.getSelectedIndex());
+            cal.set(Calendar.DAY_OF_MONTH, 1);
+            
+            int firstDayOfWeek = cal.get(Calendar.DAY_OF_WEEK) - 1;
+            int daysInMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+            
+            for (int i = 0; i < 42; i++) {
+                dayButtons[i].setText("");
+                dayButtons[i].setEnabled(false);
+                dayButtons[i].setBackground(null);
+            }
+            
+            for (int day = 1; day <= daysInMonth; day++) {
+                int buttonIndex = firstDayOfWeek + day - 1;
+                dayButtons[buttonIndex].setText(String.valueOf(day));
+                dayButtons[buttonIndex].setEnabled(true);
+            }
+        };
+        
+        monthCombo.addActionListener(e -> updateCalendar.run());
+        yearCombo.addActionListener(e -> updateCalendar.run());
+        updateCalendar.run();
+        
+        JPanel buttonPanel = new JPanel();
+        JButton cancelBtn = new JButton("Cancel");
+        cancelBtn.addActionListener(e -> dialog.dispose());
+        buttonPanel.add(cancelBtn);
+        
+        dialog.add(topPanel, BorderLayout.NORTH);
+        dialog.add(dayPanel, BorderLayout.CENTER);
+        dialog.add(buttonPanel, BorderLayout.SOUTH);
+        
+        dialog.setVisible(true);
+        return selectedDate[0];
     }
 
     public static void main(String[] args) {

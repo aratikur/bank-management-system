@@ -8,6 +8,7 @@ public class BankingSystem {
     private static ArrayList<Account> accounts = new ArrayList<>();
     private static Account currentAccount = null;
 
+    @SuppressWarnings("unchecked")
     public static void loadAccounts() {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
             accounts = (ArrayList<Account>) ois.readObject();
